@@ -1,0 +1,32 @@
+<div class="bg-gray-50 min-h-screen py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <div class="mb-8">
+      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">My Favorites</h1>
+      <p class="text-gray-500 mt-2">Announces you've saved for later.</p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && favorites.length === 0" class="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100">
+      <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-1">No favorites saved</h3>
+      <p class="text-gray-500">You haven't saved any announces yet. Click the heart icon on any announce to save it here.</p>
+      <a routerLink="/listings" class="mt-4 inline-block text-indigo-600 font-medium hover:text-indigo-800">Browse Announces</a>
+    </div>
+
+    <!-- Grid -->
+    <div *ngIf="!isLoading && favorites.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <app-listing-card *ngFor="let listing of favorites" [listing]="listing"></app-listing-card>
+    </div>
+
+  </div>
+</div>

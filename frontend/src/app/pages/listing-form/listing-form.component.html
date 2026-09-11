@@ -1,0 +1,154 @@
+<div class="bg-gray-50 min-h-screen py-12">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">
+          {{ isEditMode ? 'Edit Announce' : 'Add New Announce' }}
+        </h1>
+        <p class="text-gray-500 mt-2">Provide detailed information about the property.</p>
+      </div>
+      <a routerLink="/listings" class="text-indigo-600 font-medium hover:text-indigo-800 transition-colors">Cancel</a>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+      <form (ngSubmit)="onSubmit()" class="p-8">
+
+        <div class="space-y-8">
+          
+          <!-- Basic Info -->
+          <div>
+            <h3 class="text-lg font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">Basic Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Title <span class="text-red-500">*</span></label>
+                <input type="text" [(ngModel)]="formData.title" name="title" required class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-shadow">
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Description <span class="text-red-500">*</span></label>
+                <textarea [(ngModel)]="formData.description" name="description" required rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-shadow"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Price ($) <span class="text-red-500">*</span></label>
+                <input type="number" [(ngModel)]="formData.price" name="price" required class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-shadow">
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Property Category <span class="text-red-500">*</span></label>
+                <select [(ngModel)]="formData.category" name="category" required class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-shadow bg-white">
+                  <option value="" disabled>Select a category</option>
+                  <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+                </select>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div>
+            <h3 class="text-lg font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">Location</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">City <span class="text-red-500">*</span></label>
+                <input type="text" [(ngModel)]="formData.city" name="city" required class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-shadow">
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Detailed Address</label>
+                <input type="text" [(ngModel)]="formData.address" name="address" class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-shadow">
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Features -->
+          <div>
+            <h3 class="text-lg font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">Property Features</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
+                <input type="number" [(ngModel)]="formData.features.bedrooms" name="bedrooms" class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-shadow">
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Bathrooms</label>
+                <input type="number" [(ngModel)]="formData.features.bathrooms" name="bathrooms" class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-shadow">
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Square Feet</label>
+                <input type="number" [(ngModel)]="formData.features.squareFeet" name="squareFeet" class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-shadow">
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Media -->
+          <div>
+            <h3 class="text-lg font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">Media <span class="text-red-500">*</span></h3>
+            
+            <!-- Existing Images Preview (Edit Mode) -->
+            <div *ngIf="existingImages.length > 0" class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Currently Uploaded Images</label>
+              <div class="flex flex-wrap gap-4">
+                <div *ngFor="let img of existingImages" class="relative w-32 h-32 rounded-xl overflow-hidden border border-gray-200">
+                  <img [src]="'http://localhost:5000' + img" class="w-full h-full object-cover">
+                  <button type="button" (click)="removeExistingImage(img)" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- New Images Upload -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Upload New Images</label>
+              <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-indigo-500 transition-colors bg-gray-50">
+                <div class="space-y-1 text-center">
+                  <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <div class="flex text-sm text-gray-600 justify-center">
+                    <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500 px-2 py-1">
+                      <span>Upload files</span>
+                      <input id="file-upload" name="file-upload" type="file" multiple accept="image/*" class="sr-only" (change)="onFileSelected($event)">
+                    </label>
+                  </div>
+                  <p class="text-xs text-gray-500">PNG, JPG, WEBP</p>
+                </div>
+              </div>
+              
+              <!-- Previews for new uploads -->
+              <div *ngIf="previewUrls.length > 0" class="mt-4 flex flex-wrap gap-4">
+                <div *ngFor="let url of previewUrls; let i = index" class="relative w-32 h-32 rounded-xl overflow-hidden border border-gray-200">
+                  <img [src]="url" class="w-full h-full object-cover">
+                  <button type="button" (click)="removeNewFile(i)" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="mt-10 pt-6 border-t border-gray-100 flex items-center justify-end gap-4">
+          <button type="button" routerLink="/listings" class="px-6 py-3 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+            Cancel
+          </button>
+          <button type="submit" [disabled]="isLoading" class="px-8 py-3 border border-transparent rounded-xl shadow-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0">
+            {{ isLoading ? 'Saving...' : (isEditMode ? 'Update Announce' : 'Create Announce') }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,170 @@
+<div class="bg-gray-50 min-h-screen py-12" *ngIf="!isLoading && listing">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Breadcrumbs & Actions -->
+    <div class="flex justify-between items-center mb-6">
+      <nav class="flex text-gray-500 text-sm font-medium">
+        <a routerLink="/listings" class="hover:text-indigo-600 transition-colors">Announces</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 truncate max-w-[200px]">{{ listing.title }}</span>
+      </nav>
+
+      <div *ngIf="isOwner" class="flex gap-3">
+        <button [routerLink]="['/listings', listing._id, 'edit']" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-xl font-medium hover:bg-gray-50 transition-colors shadow-sm">
+          Edit
+        </button>
+        <button (click)="deleteListing()" class="bg-red-50 text-red-600 px-4 py-2 rounded-xl font-medium hover:bg-red-100 transition-colors shadow-sm">
+          Delete
+        </button>
+      </div>
+    </div>
+
+    <!-- Image Gallery -->
+    <div class="bg-white rounded-3xl p-4 shadow-sm border border-gray-100 mb-10">
+      <div class="relative h-[60vh] rounded-2xl overflow-hidden mb-4">
+        <img [src]="mainImage" [alt]="listing.title" class="w-full h-full object-cover">
+      </div>
+      
+      <div class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide" *ngIf="listing.images && listing.images.length > 1">
+        <div *ngFor="let img of listing.images" (click)="setMainImage(img)" class="w-32 h-24 rounded-xl overflow-hidden flex-shrink-0 cursor-pointer border-2 border-transparent hover:border-indigo-500 transition-all opacity-80 hover:opacity-100" [class.border-indigo-500]="mainImage === getImageUrl(img)" [class.opacity-100]="mainImage === getImageUrl(img)">
+          <img [src]="getImageUrl(img)" class="w-full h-full object-cover">
+        </div>
+      </div>
+    </div>
+
+    <!-- Details Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      
+      <!-- Main Content -->
+      <div class="lg:col-span-2 space-y-8">
+        <div>
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <span class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-sm font-semibold border border-indigo-100">
+              {{ $any(listing.category).name || 'Property' }}
+            </span>
+          </div>
+          <h1 class="text-4xl font-extrabold text-gray-900 mb-2">{{ listing.title }}</h1>
+          <p class="text-xl text-gray-500 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            {{ listing.address ? listing.address + ', ' : '' }}{{ listing.city }}
+          </p>
+        </div>
+
+        <div class="flex gap-8 py-6 border-y border-gray-100">
+          <div class="flex flex-col">
+            <span class="text-gray-500 text-sm font-medium uppercase tracking-wider mb-1">Bedrooms</span>
+            <span class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+              {{ listing.features?.bedrooms || 0 }}
+            </span>
+          </div>
+          <div class="w-px bg-gray-200"></div>
+          <div class="flex flex-col">
+            <span class="text-gray-500 text-sm font-medium uppercase tracking-wider mb-1">Bathrooms</span>
+            <span class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" /></svg>
+              {{ listing.features?.bathrooms || 0 }}
+            </span>
+          </div>
+          <div class="w-px bg-gray-200"></div>
+          <div class="flex flex-col">
+            <span class="text-gray-500 text-sm font-medium uppercase tracking-wider mb-1">Square Feet</span>
+            <span class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+              {{ listing.features?.squareFeet || 0 }}
+            </span>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">About this property</h2>
+          <div class="prose prose-indigo max-w-none text-gray-600 leading-relaxed">
+            {{ listing.description }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="lg:col-span-1">
+        <div class="bg-white p-6 rounded-3xl shadow-lg shadow-gray-100 border border-gray-100 sticky top-28">
+          <div class="text-gray-500 font-medium mb-1 uppercase tracking-wide text-sm">Listed Price</div>
+          <div class="text-4xl font-extrabold text-indigo-600 mb-8">{{ listing.price | currency:'USD':'symbol':'1.0-0' }}</div>
+
+          <div class="bg-gray-50 rounded-2xl p-5 mb-6 border border-gray-100">
+            <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+              </svg>
+              Publisher
+            </h3>
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-xl uppercase">
+                {{ $any(listing.agent).name?.charAt(0) || 'A' }}
+              </div>
+              <div>
+                <div class="font-bold text-gray-900">{{ $any(listing.agent).name || 'Publisher Name' }}</div>
+                <div class="text-sm text-gray-500">{{ $any(listing.agent).email || 'agent@example.com' }}</div>
+              </div>
+            </div>
+            
+            <div class="mt-5 space-y-3 pt-5 border-t border-gray-200">
+              <div *ngIf="$any(listing.agent).phone" class="flex items-center gap-3 text-gray-600">
+                <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                </div>
+                <span class="font-medium text-sm">{{ $any(listing.agent).phone }}</span>
+              </div>
+              
+              <div *ngIf="$any(listing.agent).contactEmail" class="flex items-center gap-3 text-gray-600">
+                <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <span class="font-medium text-sm break-all">{{ $any(listing.agent).contactEmail }}</span>
+              </div>
+              
+              <div *ngIf="$any(listing.agent).facebookLink" class="flex items-center gap-3 text-gray-600">
+                <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-600">
+                  <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <a [href]="$any(listing.agent).facebookLink" target="_blank" class="font-medium text-sm text-indigo-600 hover:underline truncate">Facebook Profile</a>
+              </div>
+            </div>
+          </div>
+
+          <ng-container *ngIf="!isOwner">
+            <button (click)="openContactModal()" class="w-full bg-gray-900 hover:bg-gray-800 text-white px-6 py-4 rounded-xl font-bold transition-all shadow-md transform hover:-translate-y-0.5 mb-3 flex justify-center items-center gap-2">
+              Contact Publisher
+            </button>
+            
+            <button (click)="toggleFavorite()" [class.text-red-500]="isFavorite" [class.border-red-500]="isFavorite" class="w-full bg-white border-2 border-gray-200 hover:border-red-500 hover:text-red-500 text-gray-700 px-6 py-3.5 rounded-xl font-bold transition-colors flex justify-center items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" [class.fill-current]="isFavorite" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              {{ isFavorite ? 'Saved to Favorites' : 'Save to Favorites' }}
+            </button>
+          </ng-container>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isLoading" class="flex justify-center items-center min-h-[60vh]">
+  <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+</div>
+
+<div *ngIf="error" class="text-center py-20">
+  <h2 class="text-2xl font-bold text-gray-900 mb-2">Oops!</h2>
+  <p class="text-gray-500">{{ error }}</p>
+  <button routerLink="/listings" class="mt-4 text-indigo-600 font-medium hover:text-indigo-800">Back to Announces</button>
+</div>

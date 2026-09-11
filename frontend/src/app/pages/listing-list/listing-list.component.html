@@ -1,0 +1,110 @@
+<div class="bg-gray-50 min-h-screen py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Real Estate Announces</h1>
+      <p class="text-gray-500 mt-2">Find your perfect property from our curated collection.</p>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 items-end">
+        
+        <div class="lg:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Search Keyword</label>
+          <input type="text" [(ngModel)]="keyword" (ngModelChange)="onFilterChange()" placeholder="Title, features..." class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+          <input type="text" [(ngModel)]="city" (ngModelChange)="onFilterChange()" placeholder="e.g. New York" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <select [(ngModel)]="categoryId" (ngModelChange)="onSelectChange()" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+            <option value="">All Types</option>
+            <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Min Price</label>
+          <input type="number" [(ngModel)]="minPrice" (ngModelChange)="onFilterChange()" placeholder="$ 0" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Max Price</label>
+          <input type="number" [(ngModel)]="maxPrice" (ngModelChange)="onFilterChange()" placeholder="$ Any" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+
+        <div>
+          <button (click)="resetFilters()" class="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-xl font-medium transition-colors shadow-sm h-[42px] flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            Reset
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sorting -->
+    <div class="flex justify-between items-center mb-6">
+      <div class="text-gray-600">
+        Showing <span class="font-semibold text-gray-900">{{ listings.length }}</span> of <span class="font-semibold text-gray-900">{{ total }}</span> announces
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-medium text-gray-700">Sort by:</label>
+        <select [(ngModel)]="sort" (change)="onSelectChange()" class="pl-3 pr-8 py-1.5 border border-gray-300 rounded-xl text-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+          <option value="createdAt_desc">Newest First</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && listings.length === 0" class="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100">
+      <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-1">No announces found</h3>
+      <p class="text-gray-500">Try adjusting your search or filters to find what you're looking for.</p>
+      <button (click)="resetFilters()" class="mt-4 text-indigo-600 font-medium hover:text-indigo-800">Clear all filters</button>
+    </div>
+
+    <!-- Grid -->
+    <div *ngIf="!isLoading && listings.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <app-listing-card *ngFor="let listing of listings" [listing]="listing"></app-listing-card>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="pages > 1" class="mt-12 flex justify-center">
+      <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+        <button (click)="changePage(page - 1)" [disabled]="page === 1" class="relative inline-flex items-center px-2 py-2 rounded-l-xl border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="sr-only">Previous</span>
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+        </button>
+        <button *ngFor="let p of visiblePages" (click)="changePage(p)" [class.bg-indigo-50]="page === p" [class.border-indigo-500]="page === p" [class.text-indigo-600]="page === p" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+          {{ p }}
+        </button>
+        <button (click)="changePage(page + 1)" [disabled]="page === pages" class="relative inline-flex items-center px-2 py-2 rounded-r-xl border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="sr-only">Next</span>
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </nav>
+    </div>
+
+  </div>
+</div>
